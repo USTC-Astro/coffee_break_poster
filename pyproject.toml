@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "coffee-break-poster"
+version = "0.1.0"
+description = "A Codex skill creating one-screen, figure-first astronomy coffee-break posters from papers"
+requires-python = ">=3.10"
+dependencies = [
+  "beautifulsoup4",
+  "defusedxml",
+  "pillow",
+  "playwright",
+  "pymupdf",
+  "pyyaml",
+  "requests",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+cbp = "tools.cbp:main"
+
+[tool.setuptools]
+packages = ["tools"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

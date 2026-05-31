@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{PAPER_TITLE}}</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']],
+        displayMath: [['\\[', '\\]']],
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      },
+      chtml: {
+        scale: 0.98,
+      },
+      startup: {
+        typeset: true,
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <style>
+    :root {
+      --canvas-w: 1920px;
+      --canvas-h: 1080px;
+      --ink: #17212b;
+      --muted: #4c5564;
+      --paper: #f8f8fc;
+      --line: rgba(150, 146, 175, 0.26);
+      --accent: rgba(150, 146, 175, 0.88);
+      --accent-2: rgba(150, 146, 175, 0.62);
+      --section-bg-1: rgba(146, 142, 170, 0.94);
+      --section-bg-2: rgba(152, 148, 176, 0.90);
+      --section-bg-3: rgba(158, 154, 184, 0.86);
+      --highlight: rgba(150, 146, 175, 0.14);
+      --title-font: Helvetica, Arial, sans-serif;
+      --paper-font: Helvetica, Arial, sans-serif;
+      --text-font: Helvetica, Arial, sans-serif;
+      --ui-font: "Gill Sans", "Gill Sans MT", Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--text-font);
+      letter-spacing: 0;
+    }
+
+    body {
+      overflow: auto;
+      display: grid;
+      place-items: start center;
+    }
+
+    .screen-shell {
+      --preview-scale: min(calc(100vw / var(--canvas-w)), calc(100vh / var(--canvas-h)), 1);
+      width: calc(var(--canvas-w) * var(--preview-scale));
+      height: calc(var(--canvas-h) * var(--preview-scale));
+      min-height: 100vh;
+    }
+
+    .poster {
+      width: var(--canvas-w);
+      height: var(--canvas-h);
+      margin: 0;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(150, 146, 175, 0.12), transparent 38%),
+        radial-gradient(circle at 85% 6%, rgba(150, 146, 175, 0.08), transparent 22%),
+        linear-gradient(180deg, rgba(150, 146, 175, 0.14) 0%, rgba(150, 146, 175, 0.05) 58%, rgba(150, 146, 175, 0.12) 100%),
+        var(--paper);
+      display: grid;
+      grid-template-rows: 208px 1fr;
+      padding: 32px 42px 38px;
+      gap: 24px;
+      transform: scale(var(--preview-scale));
+      transform-origin: top left;
+    }
+
+    .header {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1.22fr) minmax(0, 0.95fr);
+      gap: 32px;
+      align-items: start;
+      padding: 4px 6px 30px;
+    }
+
+    .header::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 8px;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.42) 38%, rgba(255, 255, 255, 0.92));
+      box-shadow: 0 5px 18px rgba(44, 35, 128, 0.1);
+    }
+
+    .title-block {
+      display: grid;
+      gap: 12px;
+    }
+
+    .headline {
+      margin: 0;
+      font-family: var(--title-font);
+      font-size: 54px;
+      line-height: 1.0;
+      font-weight: 700;
+      text-wrap: balance;
+    }
+
+    .subtitle {
+      max-width: 980px;
+      margin: 0;
+      color: rgba(23, 33, 43, 0.9);
+      font-size: 26px;
+      line-height: 1.14;
+      font-weight: 400;
+      font-style: italic;
+      font-family: var(--text-font);
+    }
+
+    .meta {
+      justify-self: end;
+      width: 100%;
+      max-width: 660px;
+      padding-top: 4px;
+      font-size: 21px;
+      line-height: 1.18;
+      color: rgba(23, 33, 43, 0.82);
+      font-family: var(--text-font);
+    }
+
+    .meta strong {
+      display: block;
+      font-family: var(--paper-font);
+      color: var(--ink);
+      font-size: 27px;
+      line-height: 1.08;
+      margin-bottom: 10px;
+    }
+
+    .body {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.85fr);
+      gap: 34px;
+      min-height: 0;
+    }
+
+    .text-column {
+      min-height: 0;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 20px;
+    }
+
+    .text-card {
+      background: transparent;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(72, 70, 96, 0.02);
+    }
+
+    .text-card h2 {
+      margin: 0;
+      padding: 11px 22px 12px;
+      color: #ffffff;
+      font-family: var(--text-font);
+      font-size: 27px;
+      font-weight: 700;
+      line-height: 1.05;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .text-card-background h2 {
+      background: linear-gradient(90deg, var(--section-bg-1), rgba(153, 149, 178, 0.82));
+    }
+
+    .text-card-selling h2 {
+      background: linear-gradient(90deg, var(--section-bg-2), rgba(159, 155, 183, 0.80));
+    }
+
+    .text-card-results h2 {
+      background: linear-gradient(90deg, var(--section-bg-3), rgba(165, 161, 188, 0.78));
+    }
+
+    .text-card p,
+    .text-card li {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.22;
+    }
+
+    .text-card p,
+    .text-card ul {
+      padding: 20px 23px 22px;
+    }
+
+    .knowledge-gap {
+      margin: 0 23px 20px;
+      padding: 13px 16px 14px;
+      border-radius: 14px;
+      background: var(--highlight);
+      border-left: 6px solid var(--accent);
+      font-family: var(--ui-font);
+      font-size: 19px;
+      line-height: 1.22;
+      font-weight: 600;
+      color: #2f2a7b;
+    }
+
+    .text-card ul {
+      margin: 0;
+      display: grid;
+      gap: 10px;
+      padding-left: 48px;
+      list-style-position: outside;
+    }
+
+    .text-card-results ul {
+      gap: 6px;
+      padding-top: 16px;
+      padding-bottom: 16px;
+    }
+
+    .text-card-results li {
+      font-size: 17px;
+      line-height: 1.12;
+    }
+
+    .text-card strong,
+    .figure-card strong {
+      color: #163848;
+      font-weight: 600;
+    }
+
+    .figure-panel {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-rows: minmax(0, 1fr);
+      gap: 22px;
+    }
+
+    .figure-card {
+      margin: 0;
+      min-height: 0;
+      background: transparent;
+      border: 2px solid rgba(150, 146, 175, 0.24);
+      border-radius: 18px;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      padding: 12px;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(72, 70, 96, 0.015);
+    }
+
+    .figure-card img {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      object-fit: contain;
+      display: block;
+    }
+
+    .figure-card figcaption {
+      padding-top: 2px;
+      font-size: 21px;
+      line-height: 1.16;
+      color: rgba(76, 85, 100, 0.92);
+      max-height: 78px;
+      overflow: hidden;
+      font-family: var(--text-font);
+    }
+
+    .empty-figure {
+      display: grid;
+      place-items: center;
+      min-height: 220px;
+      border: 2px dashed var(--line);
+      color: var(--muted);
+      font-size: 26px;
+    }
+
+    @media print {
+      .screen-shell {
+        --preview-scale: 1;
+        width: var(--canvas-w);
+        height: var(--canvas-h);
+        min-height: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="screen-shell">
+    <main class="poster" data-role="poster">
+      <header class="header" data-role="header">
+        <div class="title-block">
+          <h1 class="headline" data-role="headline">{{HEADLINE}}</h1>
+          <p class="subtitle">{{SUBTITLE}}</p>
+        </div>
+        <div class="meta" data-role="meta">
+          <strong>{{PAPER_TITLE}}</strong>
+          {{PAPER_META}}
+        </div>
+      </header>
+      <section class="body">
+        <aside class="text-column" data-role="text-column">
+          <section class="text-card text-card-background">
+            <h2>Background</h2>
+            <p>{{BACKGROUND}}</p>
+            <div class="knowledge-gap">{{KNOWLEDGE_GAP}}</div>
+          </section>
+          <section class="text-card text-card-selling">
+            <h2>What this paper is selling</h2>
+            <p>{{SELLING}}</p>
+          </section>
+          <section class="text-card text-card-results">
+            <h2>Key results to remember</h2>
+            <ul>{{KEY_RESULTS}}</ul>
+          </section>
+        </aside>
+        <section class="figure-panel" data-role="figure-panel">
+          {{FIGURES}}
+        </section>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,15 @@
+work/
+config.local.yaml
+__pycache__/
+.pytest_cache/
+*.pyc
+*_preview.png
+*_preview.pdf
+.coverage
+.coverage.*
+.python-version
+.ruff_cache/
+build/
+dist/
+htmlcov/
+*.egg-info/

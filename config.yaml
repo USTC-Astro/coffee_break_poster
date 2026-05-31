@@ -1,0 +1,4 @@
+mineru:
+  endpoint: "http://localhost:8000"
+  cloud_url: "https://mineru.net/api/v4"
+  api_key: "YOUR_MINERU_API_KEY"
