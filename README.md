@@ -31,7 +31,7 @@ $coffee_break_poster make a coffee-break poster for https://arxiv.org/abs/2605.2
 
 This produces a paper-specific work directory under `work/`, for example `work/arxiv-2605-21574/`, and renders a preview poster such as:
 
-![[./examples/arxiv-2605-21574/poster_preview.png]]
+![Example poster preview](./examples/arxiv-2605-21574/poster_preview.png)
 
 
 The poster is built around a few fixed ingredients:
