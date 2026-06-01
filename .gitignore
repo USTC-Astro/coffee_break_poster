@@ -3,8 +3,6 @@ config.local.yaml
 __pycache__/
 .pytest_cache/
 *.pyc
-*_preview.png
-*_preview.pdf
 .coverage
 .coverage.*
 .python-version
