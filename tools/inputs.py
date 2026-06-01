@@ -55,8 +55,10 @@ def _ingest_local(src: Path, base_work: Path, mineru_cfg: MineruConfig) -> Path:
     if src.suffix.lower() == ".pdf":
         paper_dir = base_work / slugify(src.stem)
         paper_dir.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(src, paper_dir / src.name)
-        convert_pdf(src, paper_dir, mineru_cfg)
+        dest_pdf = paper_dir / src.name
+        if src.resolve() != dest_pdf.resolve():
+            shutil.copy2(src, dest_pdf)
+        convert_pdf(dest_pdf, paper_dir, mineru_cfg)
         _write_source(paper_dir, {"kind": "pdf", "source": str(src)})
         return paper_dir
     raise ValueError(f"Unsupported local input: {src}")

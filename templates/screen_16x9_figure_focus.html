@@ -87,8 +87,8 @@
     .header {
       position: relative;
       display: grid;
-      grid-template-columns: minmax(0, 1.22fr) minmax(0, 0.95fr);
-      gap: 32px;
+      grid-template-columns: minmax(0, 1.34fr) minmax(560px, 0.83fr);
+      gap: 24px;
       align-items: start;
       padding: 4px 6px 30px;
     }
@@ -108,22 +108,24 @@
     .title-block {
       display: grid;
       gap: 12px;
+      min-width: 0;
     }
 
     .headline {
       margin: 0;
       font-family: var(--title-font);
-      font-size: 54px;
+      font-size: 52px;
       line-height: 1.0;
       font-weight: 700;
       text-wrap: balance;
     }
 
     .subtitle {
-      max-width: 980px;
+      width: 100%;
+      max-width: none;
       margin: 0;
       color: rgba(23, 33, 43, 0.9);
-      font-size: 26px;
+      font-size: 24px;
       line-height: 1.14;
       font-weight: 400;
       font-style: italic;

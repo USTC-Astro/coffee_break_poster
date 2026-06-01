@@ -1,0 +1,144 @@
+{
+  "html": "/Users/chensj/repository/coffee_break_poster/work/arxiv-2605-21574/poster.html",
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "errors": [],
+  "warnings": [],
+  "measurements": {
+    "bodyScrollW": 1920,
+    "bodyScrollH": 1080,
+    "viewportW": 1920,
+    "viewportH": 1080,
+    "poster": {
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 1080,
+      "bottom": 1080,
+      "right": 1920,
+      "scrollH": 1080,
+      "clientH": 1080
+    },
+    "header": {
+      "x": 42,
+      "y": 32,
+      "w": 1836,
+      "h": 208,
+      "bottom": 240,
+      "right": 1878,
+      "scrollH": 208,
+      "clientH": 208
+    },
+    "text": {
+      "x": 42,
+      "y": 264,
+      "w": 589.734375,
+      "h": 778,
+      "bottom": 1042,
+      "right": 631.734375,
+      "scrollH": 778,
+      "clientH": 778
+    },
+    "figurePanel": {
+      "x": 665.734375,
+      "y": 264,
+      "w": 1212.265625,
+      "h": 778,
+      "bottom": 1042,
+      "right": 1878,
+      "scrollH": 778,
+      "clientH": 778
+    },
+    "figures": [
+      {
+        "card": {
+          "w": 595.125,
+          "h": 378
+        },
+        "img": {
+          "w": 567.125,
+          "h": 280.609375
+        }
+      },
+      {
+        "card": {
+          "w": 595.140625,
+          "h": 378
+        },
+        "img": {
+          "w": 567.140625,
+          "h": 280.609375
+        }
+      },
+      {
+        "card": {
+          "w": 595.125,
+          "h": 378
+        },
+        "img": {
+          "w": 567.125,
+          "h": 300.40625
+        }
+      },
+      {
+        "card": {
+          "w": 595.140625,
+          "h": 378
+        },
+        "img": {
+          "w": 567.140625,
+          "h": 280.609375
+        }
+      }
+    ],
+    "textCards": [
+      {
+        "w": 589.734375,
+        "h": 307.46875,
+        "scrollH": 303,
+        "clientH": 303
+      },
+      {
+        "w": 589.734375,
+        "h": 256.09375,
+        "scrollH": 252,
+        "clientH": 252
+      },
+      {
+        "w": 589.734375,
+        "h": 174.4375,
+        "scrollH": 170,
+        "clientH": 170
+      }
+    ],
+    "captions": [
+      {
+        "w": 567.125,
+        "h": 61.390625,
+        "scrollH": 62,
+        "clientH": 61
+      },
+      {
+        "w": 567.140625,
+        "h": 61.390625,
+        "scrollH": 62,
+        "clientH": 61
+      },
+      {
+        "w": 567.125,
+        "h": 41.59375,
+        "scrollH": 42,
+        "clientH": 42
+      },
+      {
+        "w": 567.140625,
+        "h": 61.390625,
+        "scrollH": 62,
+        "clientH": 61
+      }
+    ]
+  },
+  "ok": true
+}

@@ -13,7 +13,7 @@ sys.path.insert(0, str(TOOLS))
 
 from check import check_html
 from config import resolve_mineru_config
-from inputs import ingest
+from inputs import _ingest_local, ingest
 from mineru import _download_cloud_result, convert_pdf
 from paper_inspect import inspect_paper
 from scaffold import scaffold
@@ -96,6 +96,29 @@ def test_convert_pdf_requires_cloud_key(tmp_path: Path) -> None:
         assert "MinerU cloud API key missing" in str(exc)
     else:
         raise AssertionError("convert_pdf should require a cloud API key")
+
+
+def test_ingest_local_pdf_skips_self_copy(tmp_path: Path, monkeypatch) -> None:
+    paper_dir = tmp_path / "arxiv-2605-21574"
+    paper_dir.mkdir()
+    pdf_path = paper_dir / "arxiv-2605.21574.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4\n")
+
+    def fake_convert(pdf_path_arg: Path, out_dir_arg: Path, cfg) -> Path:
+        assert pdf_path_arg == pdf_path
+        assert out_dir_arg == paper_dir
+        md_path = out_dir_arg / "paper.md"
+        md_path.write_text("# Title\n", encoding="utf-8")
+        return md_path
+
+    monkeypatch.setattr("inputs.convert_pdf", fake_convert)
+
+    result = _ingest_local(pdf_path, tmp_path, resolve_mineru_config())
+
+    assert result == paper_dir
+    assert (paper_dir / "paper.md").exists()
+    source = json.loads((paper_dir / "source.json").read_text(encoding="utf-8"))
+    assert source["kind"] == "pdf"
 
 
 def test_download_cloud_result_prefers_md_content(tmp_path: Path) -> None:
