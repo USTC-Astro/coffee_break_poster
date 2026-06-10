@@ -97,19 +97,42 @@ cbp scaffold PAPER_DIR
 
 Edit `poster.html` directly. The default template is 16:9, with text on the left and figures on the right.
 
+If the poster only needs three figures, scaffold or revise the figure panel as a deliberate 3-figure layout, not as a 2x2 grid with one weak or empty slot:
+
+```bash
+cbp scaffold PAPER_DIR --figure-count 3
+```
+
+The 3-figure template uses one large hero figure plus two supporting figures. Use it when one figure clearly carries the main result and two others provide context.
+
 ### 5. Check and iterate
 
 ```bash
 cbp check PAPER_DIR/poster.html --json-out PAPER_DIR/layout.json
 ```
 
-If the check reports overflow, tiny figures, broken images, or blank figure area, edit `poster.html` and rerun. The tools measure layout; the agent must adapt content, figure choice, captions, and CSS.
+This is a hard gate. If the check reports overflow, clipped descendants, tiny figures, broken images, blank figure area, or a collapsed layout region, edit `poster.html` and rerun. The tools measure layout; the agent must adapt content, figure choice, captions, and CSS.
+
+For a compact explanation of what to change, run:
+
+```bash
+cbp diagnose PAPER_DIR/poster.html
+```
+
+Layout adaptation order:
+
+1. Shorten prose and captions.
+2. If one figure is secondary, switch from 4 figures to the 3-figure hero layout.
+3. Tune CSS variables such as text scale, caption scale, header height, figure gap, or text/figure ratio.
+4. Change structural layout only if the previous steps do not solve the measured problem.
 
 ### 6. Render
 
 ```bash
 cbp render PAPER_DIR/poster.html --png --pdf
 ```
+
+`render` runs the layout check first and refuses to overwrite preview outputs if the poster does not pass. Use `--force` only for debugging a broken layout, never for final delivery.
 
 ## Editorial Rules
 

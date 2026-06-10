@@ -11,11 +11,12 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 sys.path.insert(0, str(TOOLS))
 
-from check import check_html
+from check import check_html, diagnose_result
 from config import resolve_mineru_config
 from inputs import _ingest_local, ingest
 from mineru import _download_cloud_result, convert_pdf
 from paper_inspect import inspect_paper
+import render as render_module
 from scaffold import scaffold
 
 
@@ -50,6 +51,68 @@ def test_inspect_and_scaffold_sample(tmp_path: Path) -> None:
     assert "knowledge-gap" in html
     assert "Fig. 1." in html
     assert (paper_dir / "assets" / "fig1.svg").exists()
+
+
+def test_scaffold_three_figures_uses_hero_layout(tmp_path: Path) -> None:
+    paper_dir = tmp_path / "paper"
+    image_dir = paper_dir / "images"
+    image_dir.mkdir(parents=True)
+    for idx in range(1, 4):
+        (image_dir / f"fig{idx}.svg").write_text(
+            '<svg width="800" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg"></svg>',
+            encoding="utf-8",
+        )
+    paper_dir.joinpath("paper.md").write_text(
+        "# Sample Paper\n\n"
+        "![first](images/fig1.svg)\n\n"
+        "![second](images/fig2.svg)\n\n"
+        "![third](images/fig3.svg)\n",
+        encoding="utf-8",
+    )
+
+    html_path = scaffold(paper_dir, overwrite=True, figure_count=3)
+    html = html_path.read_text(encoding="utf-8")
+
+    assert 'data-layout="hero-2"' in html
+    assert html.count('data-role="figure-card"') == 3
+
+
+def test_render_blocks_failed_layout_before_outputs(tmp_path: Path, monkeypatch) -> None:
+    html_path = tmp_path / "poster.html"
+    html_path.write_text("<main></main>", encoding="utf-8")
+
+    def fake_check(html, *, json_out=None, viewport=(1920, 1080)):
+        if json_out:
+            Path(json_out).write_text('{"ok": false}', encoding="utf-8")
+        return {"errors": ["text card 1 content exceeds by 80px vertically"], "warnings": []}
+
+    monkeypatch.setattr(render_module, "check_html", fake_check)
+
+    try:
+        render_module.render(html_path, png=True)
+    except RuntimeError as exc:
+        assert "layout check failed" in str(exc)
+    else:
+        raise AssertionError("render should fail before writing outputs")
+
+    assert not (tmp_path / "poster_preview.png").exists()
+    assert (tmp_path / "layout.json").exists()
+
+
+def test_diagnose_recommends_three_figure_layout_for_overflow() -> None:
+    result = {
+        "warnings": [],
+        "measurements": {"figures": [{}, {}, {}, {}]},
+        "error_details": [
+            {"kind": "content-overflow-y", "message": "text card 1 content exceeds by 80px vertically", "overflow_px": 80},
+            {"kind": "near-zero-region", "message": "text card 3 has near-zero usable height"},
+        ],
+    }
+
+    suggestions = diagnose_result(result)
+
+    assert any("Background" in item for item in suggestions)
+    assert any("3-figure hero layout" in item for item in suggestions)
 
 
 def test_static_check_catches_broken_images(tmp_path: Path) -> None:

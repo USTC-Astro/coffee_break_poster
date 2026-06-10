@@ -15,16 +15,19 @@ except ImportError:
 DEFAULT_TEMPLATE = REPO_ROOT / "templates" / "screen_16x9_figure_focus.html"
 
 
-def scaffold(paper_dir: str | Path, template: str | Path | None = None, *, overwrite: bool = False) -> Path:
+def scaffold(paper_dir: str | Path, template: str | Path | None = None, *, overwrite: bool = False, figure_count: int = 4) -> Path:
     paper_dir = project_path(paper_dir)
+    if figure_count not in (3, 4):
+        raise ValueError("figure_count must be 3 or 4")
     poster_path = paper_dir / "poster.html"
     if poster_path.exists() and not overwrite:
         return poster_path
     template_path = project_path(template) if template else DEFAULT_TEMPLATE
     content = template_path.read_text(encoding="utf-8")
     info = inspect_paper(paper_dir)
-    figures = info.get("referenced_images", info.get("figures", []))[:4]
+    figures = info.get("referenced_images", info.get("figures", []))[:figure_count]
     figure_html = "\n".join(_figure_card(fig, i + 1) for i, fig in enumerate(figures)) or _figure_placeholder()
+    figure_panel_attrs = ' data-layout="hero-2"' if len(figures) == 3 else ""
     content = (
         content.replace("{{HEADLINE}}", "What we learn from this paper")
         .replace("{{SUBTITLE}}", "A compact, figure-first reading of the core evidence and why it matters.")
@@ -34,6 +37,7 @@ def scaffold(paper_dir: str | Path, template: str | Path | None = None, *, overw
         .replace("{{KNOWLEDGE_GAP}}", "Knowledge gap: what is still missing before this problem is convincingly solved?")
         .replace("{{SELLING}}", "TODO: What knowledge increment is this paper selling?")
         .replace("{{KEY_RESULTS}}", "<li>TODO: observational fact supporting the main claim</li>")
+        .replace("{{FIGURE_PANEL_ATTRS}}", figure_panel_attrs)
         .replace("{{FIGURES}}", figure_html)
     )
     poster_path.write_text(content, encoding="utf-8")

@@ -40,6 +40,14 @@
       --paper-font: Helvetica, Arial, sans-serif;
       --text-font: Helvetica, Arial, sans-serif;
       --ui-font: "Gill Sans", "Gill Sans MT", Helvetica, Arial, sans-serif;
+      --header-h: 208px;
+      --body-gap: 34px;
+      --figure-gap: 22px;
+      --text-fr: 0.9fr;
+      --figure-fr: 1.85fr;
+      --caption-size: 21px;
+      --body-text-size: 25px;
+      --result-text-size: 17px;
     }
 
     * { box-sizing: border-box; }
@@ -77,7 +85,7 @@
         linear-gradient(180deg, rgba(150, 146, 175, 0.14) 0%, rgba(150, 146, 175, 0.05) 58%, rgba(150, 146, 175, 0.12) 100%),
         var(--paper);
       display: grid;
-      grid-template-rows: 208px 1fr;
+      grid-template-rows: var(--header-h) 1fr;
       padding: 32px 42px 38px;
       gap: 24px;
       transform: scale(var(--preview-scale));
@@ -154,8 +162,8 @@
 
     .body {
       display: grid;
-      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.85fr);
-      gap: 34px;
+      grid-template-columns: minmax(0, var(--text-fr)) minmax(0, var(--figure-fr));
+      gap: var(--body-gap);
       min-height: 0;
     }
 
@@ -202,7 +210,7 @@
     .text-card p,
     .text-card li {
       margin: 0;
-      font-size: 25px;
+      font-size: var(--body-text-size);
       line-height: 1.22;
     }
 
@@ -239,7 +247,7 @@
     }
 
     .text-card-results li {
-      font-size: 17px;
+      font-size: var(--result-text-size);
       line-height: 1.12;
     }
 
@@ -254,7 +262,17 @@
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       grid-auto-rows: minmax(0, 1fr);
-      gap: 22px;
+      gap: var(--figure-gap);
+    }
+
+    .figure-panel[data-layout="hero-2"] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: minmax(0, 1.18fr) minmax(0, 0.82fr);
+      grid-auto-rows: unset;
+    }
+
+    .figure-panel[data-layout="hero-2"] .figure-card:first-child {
+      grid-column: 1 / -1;
     }
 
     .figure-card {
@@ -280,7 +298,7 @@
 
     .figure-card figcaption {
       padding-top: 2px;
-      font-size: 21px;
+      font-size: var(--caption-size);
       line-height: 1.16;
       color: rgba(76, 85, 100, 0.92);
       max-height: 78px;
@@ -336,7 +354,7 @@
             <ul>{{KEY_RESULTS}}</ul>
           </section>
         </aside>
-        <section class="figure-panel" data-role="figure-panel">
+        <section class="figure-panel" data-role="figure-panel"{{FIGURE_PANEL_ATTRS}}>
           {{FIGURES}}
         </section>
       </section>

@@ -176,6 +176,14 @@ At this stage, the skill makes the editorial decisions that the deterministic to
 
 The toolchain scaffolds a starter `poster.html` in a 16:9 figure-first layout. Codex then edits that file directly, replacing placeholders with the actual scientific narrative and swapping in the chosen figures and captions.
 
+The default layout uses four figure slots in a 2x2 grid. For three-figure posters, use the dedicated hero layout instead of leaving a 2x2 slot empty:
+
+```bash
+cbp scaffold PAPER_DIR --figure-count 3
+```
+
+That layout gives the strongest figure a full-width hero panel above two supporting figures, preserving the figure-forward emphasis without wasting space.
+
 The layout is usually refined iteratively:
 
 - shorten or tighten text when a card overflows
@@ -185,7 +193,15 @@ The layout is usually refined iteratively:
 
 ## 5. Check and render
 
-Finally, the deterministic layout checker measures whether the poster fits cleanly. If there is overflow or broken figure usage, Codex revises the poster and reruns the check. Once the layout passes, the poster is rendered to preview PNG and optional PDF outputs.
+Finally, the deterministic layout checker measures whether the poster fits cleanly. If there is overflow, clipped content, collapsed grid regions, or broken figure usage, Codex revises the poster and reruns the check.
+
+```bash
+cbp check PAPER_DIR/poster.html --json-out PAPER_DIR/layout.json
+cbp diagnose PAPER_DIR/poster.html
+cbp render PAPER_DIR/poster.html --png --pdf
+```
+
+`cbp render` runs the layout check first and refuses to overwrite preview outputs when the poster fails. `--force` is available only for debugging.
 
 In short:
 
@@ -221,6 +237,7 @@ Useful checks while iterating on the toolchain:
 cbp --help
 cbp inspect examples/mineru_sample --json
 cbp build examples/mineru_sample --workdir work
+cbp diagnose work/<paper_slug>/poster.html
 ```
 
 ## Notes
