@@ -44,7 +44,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_scaffold.add_argument("paper_dir")
     p_scaffold.add_argument("--template")
     p_scaffold.add_argument("--overwrite", action="store_true")
-    p_scaffold.add_argument("--figure-count", type=int, choices=(3, 4), default=4)
+    p_scaffold.add_argument("--figure-count", type=int, choices=(1, 2, 3, 4), default=4)
 
     p_check = sub.add_parser("check", help="measure one-screen poster layout")
     p_check.add_argument("poster_html")

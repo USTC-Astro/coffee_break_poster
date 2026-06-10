@@ -53,22 +53,43 @@ def test_inspect_and_scaffold_sample(tmp_path: Path) -> None:
     assert (paper_dir / "assets" / "fig1.svg").exists()
 
 
-def test_scaffold_three_figures_uses_hero_layout(tmp_path: Path) -> None:
+def _paper_with_figures(tmp_path: Path, count: int) -> Path:
     paper_dir = tmp_path / "paper"
     image_dir = paper_dir / "images"
     image_dir.mkdir(parents=True)
-    for idx in range(1, 4):
+    md_parts = ["# Sample Paper\n"]
+    for idx in range(1, count + 1):
         (image_dir / f"fig{idx}.svg").write_text(
             '<svg width="800" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg"></svg>',
             encoding="utf-8",
         )
-    paper_dir.joinpath("paper.md").write_text(
-        "# Sample Paper\n\n"
-        "![first](images/fig1.svg)\n\n"
-        "![second](images/fig2.svg)\n\n"
-        "![third](images/fig3.svg)\n",
-        encoding="utf-8",
-    )
+        md_parts.append(f"![figure {idx}](images/fig{idx}.svg)\n")
+    paper_dir.joinpath("paper.md").write_text("\n".join(md_parts), encoding="utf-8")
+    return paper_dir
+
+
+def test_scaffold_one_figure_uses_solo_layout(tmp_path: Path) -> None:
+    paper_dir = _paper_with_figures(tmp_path, 1)
+
+    html_path = scaffold(paper_dir, overwrite=True, figure_count=1)
+    html = html_path.read_text(encoding="utf-8")
+
+    assert 'data-layout="solo"' in html
+    assert html.count('data-role="figure-card"') == 1
+
+
+def test_scaffold_two_figures_uses_hero_support_layout(tmp_path: Path) -> None:
+    paper_dir = _paper_with_figures(tmp_path, 2)
+
+    html_path = scaffold(paper_dir, overwrite=True, figure_count=2)
+    html = html_path.read_text(encoding="utf-8")
+
+    assert 'data-layout="hero-1"' in html
+    assert html.count('data-role="figure-card"') == 2
+
+
+def test_scaffold_three_figures_uses_hero_layout(tmp_path: Path) -> None:
+    paper_dir = _paper_with_figures(tmp_path, 3)
 
     html_path = scaffold(paper_dir, overwrite=True, figure_count=3)
     html = html_path.read_text(encoding="utf-8")

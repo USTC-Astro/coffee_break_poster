@@ -1,0 +1,6 @@
+<svg width="800" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="450" fill="#f4f6fb"/>
+  <path d="M80 340 C210 260 300 290 420 190 S650 130 720 95" fill="none" stroke="#2f6f9f" stroke-width="12"/>
+  <circle cx="420" cy="190" r="18" fill="#c94c4c"/>
+  <text x="70" y="70" font-family="Helvetica, Arial, sans-serif" font-size="36" fill="#17212b">Primary sample figure</text>
+</svg>

@@ -17,8 +17,8 @@ DEFAULT_TEMPLATE = REPO_ROOT / "templates" / "screen_16x9_figure_focus.html"
 
 def scaffold(paper_dir: str | Path, template: str | Path | None = None, *, overwrite: bool = False, figure_count: int = 4) -> Path:
     paper_dir = project_path(paper_dir)
-    if figure_count not in (3, 4):
-        raise ValueError("figure_count must be 3 or 4")
+    if figure_count not in (1, 2, 3, 4):
+        raise ValueError("figure_count must be between 1 and 4")
     poster_path = paper_dir / "poster.html"
     if poster_path.exists() and not overwrite:
         return poster_path
@@ -27,7 +27,7 @@ def scaffold(paper_dir: str | Path, template: str | Path | None = None, *, overw
     info = inspect_paper(paper_dir)
     figures = info.get("referenced_images", info.get("figures", []))[:figure_count]
     figure_html = "\n".join(_figure_card(fig, i + 1) for i, fig in enumerate(figures)) or _figure_placeholder()
-    figure_panel_attrs = ' data-layout="hero-2"' if len(figures) == 3 else ""
+    figure_panel_attrs = _figure_panel_attrs(len(figures))
     content = (
         content.replace("{{HEADLINE}}", "What we learn from this paper")
         .replace("{{SUBTITLE}}", "A compact, figure-first reading of the core evidence and why it matters.")
@@ -55,6 +55,16 @@ def _figure_card(fig: dict, idx: int) -> str:
   <img src="{src}" alt="Figure {fig_no}">
   <figcaption><strong>Fig. {fig_no}.</strong> {caption}</figcaption>
 </figure>'''
+
+
+def _figure_panel_attrs(figure_count: int) -> str:
+    layout_by_count = {
+        1: "solo",
+        2: "hero-1",
+        3: "hero-2",
+    }
+    layout = layout_by_count.get(figure_count)
+    return f' data-layout="{layout}"' if layout else ""
 
 
 def _figure_placeholder() -> str:

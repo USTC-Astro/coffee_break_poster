@@ -176,13 +176,15 @@ At this stage, the skill makes the editorial decisions that the deterministic to
 
 The toolchain scaffolds a starter `poster.html` in a 16:9 figure-first layout. Codex then edits that file directly, replacing placeholders with the actual scientific narrative and swapping in the chosen figures and captions.
 
-The default layout uses four figure slots in a 2x2 grid. For three-figure posters, use the dedicated hero layout instead of leaving a 2x2 slot empty:
+The default layout uses four figure slots in a 2x2 grid. For one-, two-, or three-figure posters, use a dedicated low-count layout instead of leaving a 2x2 slot empty:
 
 ```bash
+cbp scaffold PAPER_DIR --figure-count 1
+cbp scaffold PAPER_DIR --figure-count 2
 cbp scaffold PAPER_DIR --figure-count 3
 ```
 
-That layout gives the strongest figure a full-width hero panel above two supporting figures, preserving the figure-forward emphasis without wasting space.
+These layouts give the strongest figure a larger visual role, preserving the figure-forward emphasis without wasting space.
 
 The layout is usually refined iteratively:
 

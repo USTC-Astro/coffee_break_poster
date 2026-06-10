@@ -97,13 +97,15 @@ cbp scaffold PAPER_DIR
 
 Edit `poster.html` directly. The default template is 16:9, with text on the left and figures on the right.
 
-If the poster only needs three figures, scaffold or revise the figure panel as a deliberate 3-figure layout, not as a 2x2 grid with one weak or empty slot:
+Use only the figures that carry the story. Do not fill slots with weak figures. If the poster needs fewer than four figures, scaffold or revise the figure panel as a deliberate low-count layout, not as a 2x2 grid with empty or weak slots:
 
 ```bash
+cbp scaffold PAPER_DIR --figure-count 1
+cbp scaffold PAPER_DIR --figure-count 2
 cbp scaffold PAPER_DIR --figure-count 3
 ```
 
-The 3-figure template uses one large hero figure plus two supporting figures. Use it when one figure clearly carries the main result and two others provide context.
+The 1-figure template uses one large visual hero. The 2-figure template uses a main figure plus one supporting panel. The 3-figure template uses one large hero figure plus two supporting figures. Use these modes when the selected figures are scientifically stronger than a full four-slot grid.
 
 ### 5. Check and iterate
 
@@ -122,7 +124,7 @@ cbp diagnose PAPER_DIR/poster.html
 Layout adaptation order:
 
 1. Shorten prose and captions.
-2. If one figure is secondary, switch from 4 figures to the 3-figure hero layout.
+2. If one or more figures are secondary, switch to a 1-, 2-, or 3-figure layout instead of filling empty slots.
 3. Tune CSS variables such as text scale, caption scale, header height, figure gap, or text/figure ratio.
 4. Change structural layout only if the previous steps do not solve the measured problem.
 

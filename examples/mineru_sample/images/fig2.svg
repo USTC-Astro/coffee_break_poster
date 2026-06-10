@@ -1,0 +1,7 @@
+<svg width="640" height="420" viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="420" fill="#f8f8fc"/>
+  <rect x="90" y="190" width="90" height="150" fill="#8aa7c7"/>
+  <rect x="235" y="130" width="90" height="210" fill="#9a96b0"/>
+  <rect x="380" y="85" width="90" height="255" fill="#6f9f8f"/>
+  <text x="80" y="70" font-family="Helvetica, Arial, sans-serif" font-size="32" fill="#17212b">Supporting sample figure</text>
+</svg>
