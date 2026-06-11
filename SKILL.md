@@ -41,6 +41,16 @@ This skill assumes the `cbp` CLI is available on `PATH` via a normal package ins
 
 Produce a **single-screen 16:9 HTML poster** that can be checked and rendered to PNG/PDF.
 
+For WeChat/iPhone-style sharing, produce a companion **9:16 phone share card** instead:
+
+```bash
+cbp scaffold PAPER_DIR --format phone --figure-count 1
+cbp check PAPER_DIR/poster.html --format phone --json-out PAPER_DIR/layout.json
+cbp render PAPER_DIR/poster.html --format phone --png --pdf
+```
+
+The phone format is a condensed pitch, not a complete paper summary. Prefer one hero figure plus 1-2 supporting figures, and rewrite the copy into a short hook, `Why it matters`, `What this paper shows`, and `Remember`. Do not pour the 16:9 text into the vertical card.
+
 The default poster structure has exactly these text blocks:
 
 1. `Background`
@@ -107,10 +117,24 @@ cbp scaffold PAPER_DIR --figure-count 3
 
 The 1-figure template uses one large visual hero. The 2-figure template uses a main figure plus one supporting panel. The 3-figure template uses one large hero figure plus two supporting figures. Use these modes when the selected figures are scientifically stronger than a full four-slot grid.
 
+For a phone share card, choose the vertical template explicitly:
+
+```bash
+cbp scaffold PAPER_DIR --format phone --figure-count 2
+```
+
+Use `--figure-count 4` for phone output only when the user explicitly asks for four figures; it is usually too dense for a compressed share image.
+
 ### 5. Check and iterate
 
 ```bash
 cbp check PAPER_DIR/poster.html --json-out PAPER_DIR/layout.json
+```
+
+For phone output, use the format-aware viewport:
+
+```bash
+cbp check PAPER_DIR/poster.html --format phone --json-out PAPER_DIR/layout.json
 ```
 
 This is a hard gate. If the check reports overflow, clipped descendants, tiny figures, broken images, blank figure area, or a collapsed layout region, edit `poster.html` and rerun. The tools measure layout; the agent must adapt content, figure choice, captions, and CSS.
@@ -132,6 +156,12 @@ Layout adaptation order:
 
 ```bash
 cbp render PAPER_DIR/poster.html --png --pdf
+```
+
+For phone output:
+
+```bash
+cbp render PAPER_DIR/poster.html --format phone --png --pdf
 ```
 
 `render` runs the layout check first and refuses to overwrite preview outputs if the poster does not pass. Use `--force` only for debugging a broken layout, never for final delivery.

@@ -12,6 +12,7 @@ TOOLS = ROOT / "tools"
 sys.path.insert(0, str(TOOLS))
 
 from check import check_html, diagnose_result
+import cbp as cbp_module
 from config import resolve_mineru_config
 from inputs import _ingest_local, ingest
 from mineru import _download_cloud_result, convert_pdf
@@ -98,6 +99,61 @@ def test_scaffold_three_figures_uses_hero_layout(tmp_path: Path) -> None:
     assert html.count('data-role="figure-card"') == 3
 
 
+def test_scaffold_screen_format_uses_default_template(tmp_path: Path) -> None:
+    paper_dir = _paper_with_figures(tmp_path, 1)
+
+    html_path = scaffold(paper_dir, overwrite=True, figure_count=1, format="screen")
+    html = html_path.read_text(encoding="utf-8")
+
+    assert "--canvas-w: 1920px" in html
+    assert "Background" in html
+
+
+def test_scaffold_phone_one_figure_uses_phone_template(tmp_path: Path) -> None:
+    paper_dir = _paper_with_figures(tmp_path, 1)
+
+    html_path = scaffold(paper_dir, overwrite=True, figure_count=1, format="phone")
+    html = html_path.read_text(encoding="utf-8")
+
+    assert "--canvas-w: 1080px" in html
+    assert "--canvas-h: 1920px" in html
+    assert "Why it matters" in html
+    assert 'data-layout="solo"' in html
+    assert html.count('data-role="figure-card"') == 1
+
+
+def test_scaffold_phone_two_figures_uses_support_layout(tmp_path: Path) -> None:
+    paper_dir = _paper_with_figures(tmp_path, 2)
+
+    html_path = scaffold(paper_dir, overwrite=True, figure_count=2, format="phone")
+    html = html_path.read_text(encoding="utf-8")
+
+    assert 'data-layout="hero-1"' in html
+    assert html.count('data-role="figure-card"') == 2
+
+
+def test_scaffold_phone_three_figures_uses_two_support_layout(tmp_path: Path) -> None:
+    paper_dir = _paper_with_figures(tmp_path, 3)
+
+    html_path = scaffold(paper_dir, overwrite=True, figure_count=3, format="phone")
+    html = html_path.read_text(encoding="utf-8")
+
+    assert 'data-layout="hero-2"' in html
+    assert html.count('data-role="figure-card"') == 3
+
+
+def test_scaffold_template_overrides_format(tmp_path: Path) -> None:
+    paper_dir = _paper_with_figures(tmp_path, 1)
+    template = tmp_path / "custom.html"
+    template.write_text("<html><body>CUSTOM {{PAPER_TITLE}} {{FIGURES}}</body></html>", encoding="utf-8")
+
+    html_path = scaffold(paper_dir, template=template, overwrite=True, figure_count=1, format="phone")
+    html = html_path.read_text(encoding="utf-8")
+
+    assert "CUSTOM Sample Paper" in html
+    assert "--canvas-w: 1080px" not in html
+
+
 def test_render_blocks_failed_layout_before_outputs(tmp_path: Path, monkeypatch) -> None:
     html_path = tmp_path / "poster.html"
     html_path.write_text("<main></main>", encoding="utf-8")
@@ -118,6 +174,71 @@ def test_render_blocks_failed_layout_before_outputs(tmp_path: Path, monkeypatch)
 
     assert not (tmp_path / "poster_preview.png").exists()
     assert (tmp_path / "layout.json").exists()
+
+
+def test_cli_check_phone_format_uses_phone_viewport(tmp_path: Path, monkeypatch) -> None:
+    html_path = tmp_path / "poster.html"
+    html_path.write_text("<main></main>", encoding="utf-8")
+    seen = {}
+
+    def fake_check(html, *, json_out=None, viewport=(1920, 1080), dynamic=True):
+        seen["viewport"] = viewport
+        seen["dynamic"] = dynamic
+        if json_out:
+            Path(json_out).write_text(json.dumps({"ok": True, "viewport": {"width": viewport[0], "height": viewport[1]}}), encoding="utf-8")
+        return {"errors": [], "warnings": []}
+
+    monkeypatch.setattr(cbp_module, "check_html", fake_check)
+
+    rc = cbp_module.main(["check", str(html_path), "--format", "phone", "--json-out", str(tmp_path / "layout.json")])
+
+    assert rc == 0
+    assert seen == {"viewport": (1080, 1920), "dynamic": True}
+    result = json.loads((tmp_path / "layout.json").read_text(encoding="utf-8"))
+    assert result["viewport"] == {"width": 1080, "height": 1920}
+
+
+def test_cli_check_viewport_overrides_format(tmp_path: Path, monkeypatch) -> None:
+    html_path = tmp_path / "poster.html"
+    html_path.write_text("<main></main>", encoding="utf-8")
+    seen = {}
+
+    def fake_check(html, *, json_out=None, viewport=(1920, 1080), dynamic=True):
+        seen["viewport"] = viewport
+        return {"errors": [], "warnings": []}
+
+    monkeypatch.setattr(cbp_module, "check_html", fake_check)
+
+    rc = cbp_module.main(["check", str(html_path), "--format", "phone", "--viewport", "800x1200"])
+
+    assert rc == 0
+    assert seen["viewport"] == (800, 1200)
+
+
+def test_cli_render_phone_format_passes_phone_viewport(tmp_path: Path, monkeypatch) -> None:
+    html_path = tmp_path / "poster.html"
+    html_path.write_text("<main></main>", encoding="utf-8")
+    seen = {}
+
+    def fake_render(html, *, png=True, pdf=False, viewport=(1920, 1080), force=False):
+        seen.update({"png": png, "pdf": pdf, "viewport": viewport, "force": force})
+        layout = tmp_path / "layout.json"
+        png_path = tmp_path / "poster_preview.png"
+        pdf_path = tmp_path / "poster.pdf"
+        layout.write_text("{}", encoding="utf-8")
+        png_path.write_text("png", encoding="utf-8")
+        pdf_path.write_text("pdf", encoding="utf-8")
+        return {"layout": str(layout), "png": str(png_path), "pdf": str(pdf_path)}
+
+    monkeypatch.setattr(cbp_module, "render", fake_render)
+
+    rc = cbp_module.main(["render", str(html_path), "--format", "phone", "--png", "--pdf"])
+
+    assert rc == 0
+    assert seen == {"png": True, "pdf": True, "viewport": (1080, 1920), "force": False}
+    assert (tmp_path / "layout.json").exists()
+    assert (tmp_path / "poster_preview.png").exists()
+    assert (tmp_path / "poster.pdf").exists()
 
 
 def test_diagnose_recommends_three_figure_layout_for_overflow() -> None:

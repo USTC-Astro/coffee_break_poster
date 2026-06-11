@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{PAPER_TITLE}}</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']],
+        displayMath: [['\\[', '\\]']],
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      },
+      chtml: {
+        scale: 0.98,
+      },
+      startup: {
+        typeset: true,
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <style>
+    :root {
+      --canvas-w: 1080px;
+      --canvas-h: 1920px;
+      --ink: #16202a;
+      --muted: #596473;
+      --paper: #fbfbfd;
+      --line: rgba(126, 138, 151, 0.28);
+      --accent: #226b78;
+      --accent-2: #7b5f30;
+      --soft: rgba(34, 107, 120, 0.10);
+      --warm: rgba(123, 95, 48, 0.12);
+      --title-font: Helvetica, Arial, sans-serif;
+      --paper-font: Helvetica, Arial, sans-serif;
+      --text-font: Helvetica, Arial, sans-serif;
+      --ui-font: "Gill Sans", "Gill Sans MT", Helvetica, Arial, sans-serif;
+      --caption-size: 22px;
+      --body-text-size: 31px;
+      --result-text-size: 29px;
+      --figure-gap: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--text-font);
+      letter-spacing: 0;
+    }
+
+    body {
+      overflow: auto;
+      display: grid;
+      place-items: start center;
+    }
+
+    .screen-shell {
+      --preview-scale: min(calc(100vw / var(--canvas-w)), calc(100vh / var(--canvas-h)), 1);
+      width: calc(var(--canvas-w) * var(--preview-scale));
+      height: calc(var(--canvas-h) * var(--preview-scale));
+      min-height: 100vh;
+    }
+
+    .poster {
+      width: var(--canvas-w);
+      height: var(--canvas-h);
+      margin: 0;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(34, 107, 120, 0.10), rgba(251, 251, 253, 0.94) 34%, rgba(123, 95, 48, 0.08) 100%),
+        var(--paper);
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 24px;
+      padding: 50px 48px 52px;
+      transform: scale(var(--preview-scale));
+      transform-origin: top left;
+    }
+
+    .header {
+      display: grid;
+      gap: 19px;
+      padding-bottom: 22px;
+      border-bottom: 8px solid rgba(34, 107, 120, 0.18);
+    }
+
+    .title-block {
+      display: grid;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .headline {
+      margin: 0;
+      font-family: var(--title-font);
+      font-size: 72px;
+      line-height: 0.98;
+      font-weight: 760;
+      text-wrap: balance;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: rgba(22, 32, 42, 0.88);
+      font-size: 34px;
+      line-height: 1.16;
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    .meta {
+      color: rgba(22, 32, 42, 0.78);
+      font-size: 24px;
+      line-height: 1.18;
+    }
+
+    .meta strong {
+      display: block;
+      color: var(--ink);
+      font-family: var(--paper-font);
+      font-size: 29px;
+      line-height: 1.12;
+      margin-bottom: 7px;
+    }
+
+    .body {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: minmax(0, 1.34fr) minmax(0, 0.78fr);
+      gap: 24px;
+    }
+
+    .figure-panel {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: minmax(0, 1.1fr) minmax(0, 0.7fr) minmax(0, 0.7fr);
+      gap: var(--figure-gap);
+    }
+
+    .figure-panel .figure-card:first-child {
+      grid-column: 1 / -1;
+    }
+
+    .figure-panel[data-layout="solo"] {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);
+    }
+
+    .figure-panel[data-layout="solo"] .figure-card:first-child {
+      grid-column: auto;
+    }
+
+    .figure-panel[data-layout="solo"] .figure-card {
+      padding: 18px;
+      gap: 15px;
+    }
+
+    .figure-panel[data-layout="solo"] .figure-card figcaption {
+      max-height: 122px;
+      font-size: 25px;
+      text-align: center;
+    }
+
+    .figure-panel[data-layout="hero-1"] {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1.28fr) minmax(0, 0.72fr);
+    }
+
+    .figure-panel[data-layout="hero-2"] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    }
+
+    .figure-panel[data-layout="hero-2"] .figure-card:first-child {
+      grid-column: 1 / -1;
+    }
+
+    .figure-card {
+      margin: 0;
+      min-height: 0;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.55);
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      gap: 8px;
+      padding: 12px;
+      overflow: hidden;
+    }
+
+    .figure-card img {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      object-fit: contain;
+      display: block;
+    }
+
+    .figure-card figcaption {
+      color: rgba(89, 100, 115, 0.96);
+      font-size: var(--caption-size);
+      line-height: 1.13;
+      max-height: 82px;
+      overflow: hidden;
+    }
+
+    .figure-card strong,
+    .text-card strong {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .empty-figure {
+      display: grid;
+      place-items: center;
+      min-height: 320px;
+      border: 2px dashed var(--line);
+      color: var(--muted);
+      font-size: 30px;
+    }
+
+    .text-column {
+      min-height: 0;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: minmax(0, 0.95fr) minmax(0, 1fr) minmax(0, 1.12fr);
+      gap: 16px;
+    }
+
+    .text-card {
+      min-height: 0;
+      overflow: hidden;
+      border-left: 8px solid var(--accent);
+      padding: 17px 22px 18px;
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .text-card:nth-child(2) {
+      border-left-color: var(--accent-2);
+      background: rgba(255, 255, 255, 0.46);
+    }
+
+    .text-card:nth-child(3) {
+      background: linear-gradient(90deg, var(--soft), var(--warm));
+    }
+
+    .text-card h2 {
+      margin: 0 0 9px;
+      color: rgba(22, 32, 42, 0.84);
+      font-family: var(--ui-font);
+      font-size: 25px;
+      line-height: 1.0;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .text-card p,
+    .text-card li {
+      margin: 0;
+      font-size: var(--body-text-size);
+      line-height: 1.16;
+    }
+
+    .knowledge-gap {
+      margin-top: 12px;
+      color: #23444b;
+      font-family: var(--ui-font);
+      font-size: 24px;
+      line-height: 1.16;
+      font-weight: 650;
+    }
+
+    .text-card ul {
+      margin: 0;
+      padding-left: 34px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .text-card-results li {
+      font-size: var(--result-text-size);
+      line-height: 1.14;
+    }
+
+    @media print {
+      .screen-shell {
+        --preview-scale: 1;
+        width: var(--canvas-w);
+        height: var(--canvas-h);
+        min-height: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="screen-shell">
+    <main class="poster" data-role="poster">
+      <header class="header" data-role="header">
+        <div class="title-block">
+          <h1 class="headline" data-role="headline">{{HEADLINE}}</h1>
+          <p class="subtitle">{{SUBTITLE}}</p>
+        </div>
+        <div class="meta" data-role="meta">
+          <strong>{{PAPER_TITLE}}</strong>
+          {{PAPER_META}}
+        </div>
+      </header>
+      <section class="body">
+        <section class="figure-panel" data-role="figure-panel"{{FIGURE_PANEL_ATTRS}}>
+          {{FIGURES}}
+        </section>
+        <aside class="text-column" data-role="text-column">
+          <section class="text-card text-card-background">
+            <h2>Why it matters</h2>
+            <p>{{BACKGROUND}}</p>
+            <div class="knowledge-gap">{{KNOWLEDGE_GAP}}</div>
+          </section>
+          <section class="text-card text-card-selling">
+            <h2>What this paper shows</h2>
+            <p>{{SELLING}}</p>
+          </section>
+          <section class="text-card text-card-results">
+            <h2>Remember</h2>
+            <ul>{{KEY_RESULTS}}</ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -15,7 +15,7 @@ Key features include:
 - **Automatic paper ingestion** from local PDFs or arXiv sources;
 - **PDF-to-Markdown and figure extraction** using [MinerU](https://mineru.net), producing AI-friendly text and image assets for LLM summary;
 - **Figure-centered scientific summarization**, following the figure-driven reading style common in astrophysics;
-- **Screen-adapted 16:9 poster layouts**, inspired by the MPIA [arxiv_display](https://github.com/mpi-astronomy/arxiv_display) project;
+- **Screen-adapted 16:9 poster layouts** plus a 9:16 phone share-card format for WeChat/iPhone-style distribution, inspired by the MPIA [arxiv_display](https://github.com/mpi-astronomy/arxiv_display) project;
 - **Iterative text and figure resizing** to avoid overflow and for balanced visual composition, inspired by [posterly](https://github.com/Chenruishuo/posterly/tree/main/).
 
 The resulting poster is intended to serve as a conversation starter: a compact visual advertisement for a paper that encourages discussion, collaboration, and deeper exploration of the underlying science.
@@ -40,6 +40,8 @@ The poster is built around a few fixed ingredients:
 - a compact text column on the left
 - `2-4` figures on the right
 - text blocks for `Background`, `Knowledge gap`, `What this paper is selling`, and `Key results to remember`
+
+For phone sharing, use `--format phone` to scaffold and render a 1080x1920 vertical card. This version is meant to be a condensed pitch with a headline, one hero figure, optional supporting figures, and short `Why it matters`, `What this paper shows`, and `Remember` blocks.
 
 Typical outputs in the work directory include:
 
@@ -186,6 +188,14 @@ cbp scaffold PAPER_DIR --figure-count 3
 
 These layouts give the strongest figure a larger visual role, preserving the figure-forward emphasis without wasting space.
 
+For WeChat/iPhone-style sharing, scaffold the vertical format instead:
+
+```bash
+cbp scaffold PAPER_DIR --format phone --figure-count 2
+```
+
+Prefer one hero figure plus 1-2 supporting figures in this format. Rewrite the text for a share card rather than shrinking the 16:9 copy.
+
 The layout is usually refined iteratively:
 
 - shorten or tighten text when a card overflows
@@ -201,6 +211,13 @@ Finally, the deterministic layout checker measures whether the poster fits clean
 cbp check PAPER_DIR/poster.html --json-out PAPER_DIR/layout.json
 cbp diagnose PAPER_DIR/poster.html
 cbp render PAPER_DIR/poster.html --png --pdf
+```
+
+For phone cards, the checker and renderer can choose the 1080x1920 viewport for you:
+
+```bash
+cbp check PAPER_DIR/poster.html --format phone --json-out PAPER_DIR/layout.json
+cbp render PAPER_DIR/poster.html --format phone --png --pdf
 ```
 
 `cbp render` runs the layout check first and refuses to overwrite preview outputs when the poster fails. `--force` is available only for debugging.

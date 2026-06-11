@@ -12,31 +12,46 @@ except ImportError:
     from paper_inspect import inspect_paper
 
 
+DEFAULT_FORMAT = "screen"
 DEFAULT_TEMPLATE = REPO_ROOT / "templates" / "screen_16x9_figure_focus.html"
+FORMAT_TEMPLATES = {
+    "screen": DEFAULT_TEMPLATE,
+    "phone": REPO_ROOT / "templates" / "phone_9x16_figure_focus.html",
+}
 
 
-def scaffold(paper_dir: str | Path, template: str | Path | None = None, *, overwrite: bool = False, figure_count: int = 4) -> Path:
+def scaffold(
+    paper_dir: str | Path,
+    template: str | Path | None = None,
+    *,
+    overwrite: bool = False,
+    figure_count: int = 4,
+    format: str = DEFAULT_FORMAT,
+) -> Path:
     paper_dir = project_path(paper_dir)
     if figure_count not in (1, 2, 3, 4):
         raise ValueError("figure_count must be between 1 and 4")
+    if format not in FORMAT_TEMPLATES:
+        raise ValueError(f"format must be one of: {', '.join(FORMAT_TEMPLATES)}")
     poster_path = paper_dir / "poster.html"
     if poster_path.exists() and not overwrite:
         return poster_path
-    template_path = project_path(template) if template else DEFAULT_TEMPLATE
+    template_path = project_path(template) if template else FORMAT_TEMPLATES[format]
     content = template_path.read_text(encoding="utf-8")
     info = inspect_paper(paper_dir)
     figures = info.get("referenced_images", info.get("figures", []))[:figure_count]
     figure_html = "\n".join(_figure_card(fig, i + 1) for i, fig in enumerate(figures)) or _figure_placeholder()
     figure_panel_attrs = _figure_panel_attrs(len(figures))
+    defaults = _copy_defaults(format)
     content = (
-        content.replace("{{HEADLINE}}", "What we learn from this paper")
-        .replace("{{SUBTITLE}}", "A compact, figure-first reading of the core evidence and why it matters.")
+        content.replace("{{HEADLINE}}", defaults["headline"])
+        .replace("{{SUBTITLE}}", defaults["subtitle"])
         .replace("{{PAPER_TITLE}}", html.escape(info.get("title") or paper_dir.name))
         .replace("{{PAPER_META}}", "First author / year / source")
-        .replace("{{BACKGROUND}}", "TODO: Why should a broad astro audience care?")
-        .replace("{{KNOWLEDGE_GAP}}", "Knowledge gap: what is still missing before this problem is convincingly solved?")
-        .replace("{{SELLING}}", "TODO: What knowledge increment is this paper selling?")
-        .replace("{{KEY_RESULTS}}", "<li>TODO: observational fact supporting the main claim</li>")
+        .replace("{{BACKGROUND}}", defaults["background"])
+        .replace("{{KNOWLEDGE_GAP}}", defaults["knowledge_gap"])
+        .replace("{{SELLING}}", defaults["selling"])
+        .replace("{{KEY_RESULTS}}", defaults["key_results"])
         .replace("{{FIGURE_PANEL_ATTRS}}", figure_panel_attrs)
         .replace("{{FIGURES}}", figure_html)
     )
@@ -65,6 +80,26 @@ def _figure_panel_attrs(figure_count: int) -> str:
     }
     layout = layout_by_count.get(figure_count)
     return f' data-layout="{layout}"' if layout else ""
+
+
+def _copy_defaults(format: str) -> dict[str, str]:
+    if format == "phone":
+        return {
+            "headline": "What to remember",
+            "subtitle": "A phone-sized pitch for the paper's strongest visual claim.",
+            "background": "TODO: one-sentence reason this result matters.",
+            "knowledge_gap": "Missing piece: what was uncertain before this paper?",
+            "selling": "TODO: the paper's core claim in one or two short sentences.",
+            "key_results": "<li>TODO: memorable evidence</li>",
+        }
+    return {
+        "headline": "What we learn from this paper",
+        "subtitle": "A compact, figure-first reading of the core evidence and why it matters.",
+        "background": "TODO: Why should a broad astro audience care?",
+        "knowledge_gap": "Knowledge gap: what is still missing before this problem is convincingly solved?",
+        "selling": "TODO: What knowledge increment is this paper selling?",
+        "key_results": "<li>TODO: observational fact supporting the main claim</li>",
+    }
 
 
 def _figure_placeholder() -> str:
