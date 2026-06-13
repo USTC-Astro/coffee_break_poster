@@ -86,9 +86,9 @@ cp config.yaml config.local.yaml
 
 Then edit `config.local.yaml` and fill in your MinerU settings:
 
-- `mineru.endpoint`: local MinerU service endpoint, default `http://localhost:8000`
-- `mineru.cloud_url`: MinerU cloud API base URL
-- `mineru.api_key`: your MinerU cloud API key
+- `mineru.api_key`: your MinerU cloud API key. You can get free access to it [here](https://mineru.net/apiManage/token). Each api key expires every three months.
+- `mineru.endpoint`: local MinerU service endpoint, default `http://localhost:8000`. Not necessary if you are using `mineru.api_key`.
+- `mineru.cloud_url`: MinerU cloud API base URL. Not necessary if you are using `mineru.api_key`.
 
 Environment variables still override local config:
 
